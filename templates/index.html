@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Be my Valentine?</title>
+  <style>
+    :root {
+      --pink:#ff8fa3;
+      --pink2:#ffb3c1;
+      --shadow: 0 18px 60px rgba(0,0,0,.18);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: radial-gradient(circle at 20% 20%, #fff, var(--pink2) 40%, var(--pink) 100%);
+      overflow:hidden;
+    }
+    .card{
+      width:min(720px, 92vw);
+      padding:28px 26px 22px;
+      border-radius:26px;
+      background: rgba(255,255,255,.65);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.55);
+      position:relative;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size: clamp(26px, 4.6vw, 42px);
+      letter-spacing: -.02em;
+    }
+    p{
+      margin:0 0 20px;
+      color: rgba(0,0,0,.68);
+      font-size: clamp(14px, 2.4vw, 18px);
+      line-height:1.5;
+    }
+    .btn-row{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    button{
+      border:0;
+      padding:14px 20px;
+      border-radius:999px;
+      font-size:18px;
+      cursor:pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,.10);
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+    #yes{
+      background: linear-gradient(135deg, #ff4d6d, #ff8fab);
+      color:white;
+      font-weight:700;
+    }
+    #yes:hover{ filter: brightness(1.02); transform: translateY(-1px); }
+
+    /* The “No” button will be positioned absolutely so it can run away */
+    #no{
+      background: rgba(255,255,255,.95);
+      color:#111;
+      font-weight:700;
+      position:absolute;
+      left: 190px;
+      top: 168px;
+    }
+
+    .tiny{
+      margin-top:18px;
+      font-size:13px;
+      opacity:.65;
+    }
+
+    /* Overlay image reveal */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.55);
+      animation: fadeIn .18s ease;
+      padding:18px;
+    }
+    .overlay.show{ display:flex; }
+    .pop{
+      width:min(1100px, 96vw);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,.35);
+      transform: scale(.88);
+      opacity:0;
+      animation: pop .22s ease forwards;
+      background:white;
+    }
+    .pop img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .close{
+      position:fixed;
+      top:14px;
+      right:14px;
+      padding:10px 14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.95);
+      font-weight:800;
+    }
+
+    @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+    @keyframes pop{ to{ transform: scale(1); opacity:1; } }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1>Be my Valentine’s Day? 💌</h1>
+    <p>I planned a tiny outfit idea for you… and I want today to be <b>our</b> Valentine’s Day.</p>
+
+    <div class="btn-row">
+      <button id="yes">YES ✅</button>
+    </div>
+
+    <button id="no" aria-label="no button">NO 😤</button>
+
+    <div class="tiny">Tip: Try to click “NO”. (You can’t 😏)</div>
+  </div>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+    <button class="close" id="close">닫기 ✕</button>
+    <div class="pop">
+      <img src="{{ img_url }}" alt="Valentine image"/>
+    </div>
+  </div>
+
+  <script>
+    const noBtn = document.getElementById('no');
+    const card = document.getElementById('card');
+    const yesBtn = document.getElementById('yes');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('close');
+
+    function rand(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function moveNo(){
+      const cardRect = card.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const padding = 18;
+      const minX = padding;
+      const maxX = cardRect.width - btnRect.width - padding;
+      const minY = 90;
+      const maxY = cardRect.height - btnRect.height - padding;
+
+      const x = rand(minX, Math.max(minX, maxX));
+      const y = rand(minY, Math.max(minY, maxY));
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+    }
+
+    // Run away on hover/touchstart/click
+    ["mouseenter","touchstart","click"].forEach(evt=>{
+      noBtn.addEventListener(evt, (e)=>{
+        e.preventDefault();
+        moveNo();
+      }, {passive:false});
+    });
+
+    // YES reveals the image with a "bam" pop
+    yesBtn.addEventListener('click', ()=>{
+      overlay.classList.add('show');
+      // confetti-ish hearts (tiny, lightweight)
+      for(let i=0;i<18;i++){
+        const s = document.createElement('div');
+        s.textContent = "💗";
+        s.style.position="fixed";
+        s.style.left = (Math.random()*100)+"vw";
+        s.style.top  = "-10vh";
+        s.style.fontSize = (14+Math.random()*18)+"px";
+        s.style.transition = "transform 1.2s linear, opacity 1.2s linear";
+        document.body.appendChild(s);
+        requestAnimationFrame(()=>{
+          s.style.transform = `translateY(${110+Math.random()*20}vh) rotate(${Math.random()*180}deg)`;
+          s.style.opacity = "0";
+        });
+        setTimeout(()=>s.remove(), 1300);
+      }
+    });
+
+    function close(){
+      overlay.classList.remove('show');
+    }
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (e)=>{
+      if(e.target === overlay) close();
+    });
+
+    // Initial nudge
+    moveNo();
+  </script>
+</body>
+</html>
