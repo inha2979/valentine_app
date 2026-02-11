@@ -141,7 +141,7 @@
   <div class="overlay" id="overlay" role="dialog" aria-modal="true">
     <button class="close" id="close">닫기 ✕</button>
     <div class="pop">
-      <img src="{{ img_url }}" alt="Valentine image"/>
+      <img id="valImg" alt="Valentine image" style="display:none;"/>
     </div>
   </div>
 
@@ -182,6 +182,9 @@
     // YES reveals the image with a "bam" pop
     yesBtn.addEventListener('click', ()=>{
       overlay.classList.add('show');
+      const img = document.getElementById('valImg');
+      img.src = "{{ img_url }}";
+      img.style.display = "block";
       // confetti-ish hearts (tiny, lightweight)
       for(let i=0;i<18;i++){
         const s = document.createElement('div');
